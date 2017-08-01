@@ -40,7 +40,6 @@ def download_files():
     for project in TEST_PROJECTS:
         for platform in PLATFORMS:
             url = URL_PREFIX + BUILD_STRING + TEST_DIR + project + "_" + platform + ".xml"
-            print(url)
             try:
                 url_open = urlopen(url)
                 xml_file_str = url_open.read()
