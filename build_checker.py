@@ -151,10 +151,16 @@ def parse_args():
     
     return;
 
+def cleanup():
+    for file_name in FILES:
+        os.remove(file_name)
+    return;
+
 if __name__ == "__main__":
     parse_args()
     CURRENT_DATE = date_string()
     BUILD_STRING = build_string()
     download_files()
     parse_xml()
+    cleanup()
     sys.exit(0)
