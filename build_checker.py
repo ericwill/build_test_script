@@ -29,12 +29,15 @@ def build_string():
 def date_string():
     date = datetime.datetime.now() - datetime.timedelta(days=1)
     month = date.month;
+    day = date.day;
     if (month < 10):
         str_month = "0" + str(month)
     else:
         str_month = str(month)
+    if (day < 10):
+        str_day = "0" + str(day)
 
-    return str(date.year) + str_month + str(date.day);
+    return str(date.year) + str_month + str_day;
 
 def download_files():
     for project in TEST_PROJECTS:
