@@ -11,8 +11,12 @@ import os
 CURRENT_DATE = ""
 BUILD_STRING = ""
 TEST_PROJECTS = []
-DEFAULT_PROJECTS = ["org.eclipse.e4.ui.tests.css.swt", "org.eclipse.swt.tests",
-        "org.eclipse.ui.tests", "org.eclipse.e4.ui.tests", "org.eclipse.pde.ui.tests"]
+DEFAULT_PROJECTS = ["org.eclipse.ant.tests.ui", "org.eclipse.e4.ui.tests.css.swt", "org.eclipse.swt.tests",
+        "org.eclipse.ui.tests", "org.eclipse.e4.ui.tests", "org.eclipse.pde.ui.tests",
+        "org.eclipse.e4.ui.bindings.tests", "org.eclipse.e4.ui.tests.css.core", "org.eclipse.equinox.p2.tests.ui",
+        "org.eclipse.jdt.ui.tests", "org.eclipse.jdt.ui.tests.refactoring", "org.eclipse.ltk.ui.refactoring.tests",
+        "org.eclipse.pde.ui.tests", "org.eclipse.ui.editors.tests", "org.eclipse.ui.genericeditor.tests",
+        "org.eclipse.ui.tests.forms", "org.eclipse.ui.tests.navigator", "org.eclipse.ui.workbench.texteditor.tests"]
 WIN = ["ep48I-unit-win32_win32.win32.x86_8.0"]
 MAC = ["ep48I-unit-mac64_macosx.cocoa.x86_64_8.0"]
 LINUX = ["ep48I-unit-cen64-gtk3_linux.gtk.x86_64_8.0", "ep48I-unit-cen64-gtk2_linux.gtk.x86_64_8.0"]
