@@ -56,7 +56,9 @@ def download_files():
                 xml_file.write(xml_file_str)
                 xml_file.close()
             except:
-                print("Downloading XML for " + project + " failed.")
+                print("Downloading files for one of the projects failed.", 
+                        "Please verify that an I-build actually occurred.")
+                sys.exit(2)
     return;
 
 def parse_xml():
