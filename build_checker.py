@@ -26,6 +26,7 @@ TEST_DIR = "/testresults/xml/"
 FILE_DIR = ""
 FILES = []
 SEPARATE_FILE = False
+CONSOLE_PRINT = False
 
 def build_string():
     return "I" + CURRENT_DATE + "-2000";
@@ -73,6 +74,8 @@ def parse_xml():
                     if name in file_name:
                         output_file.write(str.encode(name + " errors: " + errors + 
                             " failures: " + failures + "\n"))
+                        if CONSOLE_PRINT:
+                            print(str.encode(name + " errors: " + errors + " failures: " + failures))
             if int(errors) > 0:
                 for x in node.findall(".//error"):
                     if SEPARATE_FILE:
@@ -92,6 +95,8 @@ def parse_xml():
 
 def usage():
     print("Usage of this function:")
+    print("-c or --console if you'd like the summary of failures/errors printed to the console ",
+        "(in addition to file)")
     print("-d or --detailed if stack traces should be printed in a separate file")
     print("-h or --help for help")
     print("-o or --os to specify the platforms. Format is a comma separated list of GTK,WIN32,OSX,", 
@@ -103,13 +108,16 @@ def usage():
 
 def parse_args():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "dhlo:p:", ["detailed", "help", "location", "os=", "project="])
+        opts, args = getopt.getopt(sys.argv[1:], "cdhlo:p:s", ["console", "detailed", "help", "location", "os=", "project="])
     except getopt.GetoptError as err:
         print("Option not recognized")
         usage()
         sys.exit(2)
     for o, a in opts:
-        if o in ("-d", "--detailed"):
+        if o in ("-c", "--console"):
+            global CONSOLE_PRINT
+            CONSOLE_PRINT = True
+        elif o in ("-d", "--detailed"):
             global SEPARATE_FILE
             SEPARATE_FILE = True
         elif o in ("-p", "--project"):
