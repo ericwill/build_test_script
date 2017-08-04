@@ -9,13 +9,14 @@ import argparse
 import os
 
 CURRENT_DATE = ""
+CUSTOM_DATE = ""
 BUILD_STRING = ""
 TEST_PROJECTS = []
 DEFAULT_PROJECTS = ["org.eclipse.ant.tests.ui", "org.eclipse.e4.ui.tests.css.swt", "org.eclipse.swt.tests",
         "org.eclipse.ui.tests", "org.eclipse.e4.ui.tests", "org.eclipse.pde.ui.tests",
         "org.eclipse.e4.ui.bindings.tests", "org.eclipse.e4.ui.tests.css.core", "org.eclipse.equinox.p2.tests.ui",
         "org.eclipse.jdt.ui.tests", "org.eclipse.jdt.ui.tests.refactoring", "org.eclipse.ltk.ui.refactoring.tests",
-        "org.eclipse.pde.ui.tests", "org.eclipse.ui.editors.tests", "org.eclipse.ui.genericeditor.tests",
+        "org.eclipse.ui.editors.tests", "org.eclipse.ui.genericeditor.tests",
         "org.eclipse.ui.tests.forms", "org.eclipse.ui.tests.navigator", "org.eclipse.ui.workbench.texteditor.tests"]
 WIN = ["ep48I-unit-win32_win32.win32.x86_8.0"]
 MAC = ["ep48I-unit-mac64_macosx.cocoa.x86_64_8.0"]
@@ -32,17 +33,20 @@ def build_string():
     return "I" + CURRENT_DATE + "-2000";
 
 def date_string():
-    date = datetime.datetime.now() - datetime.timedelta(days=1)
-    month = date.month;
-    day = date.day;
-    if (month < 10):
-        str_month = "0" + str(month)
-    else:
-        str_month = str(month)
-    if (day < 10):
-        str_day = "0" + str(day)
+    if not CUSTOM_DATE:
+        date = datetime.datetime.now() - datetime.timedelta(days=1)
+        month = date.month;
+        day = date.day;
+        if (month < 10):
+            str_month = "0" + str(month)
+        else:
+            str_month = str(month)
+        if (day < 10):
+            str_day = "0" + str(day)
 
-    return str(date.year) + str_month + str_day;
+        return str(date.year) + str_month + str_day;
+    else:
+        return CUSTOM_DATE;
 
 def download_files():
     for project in TEST_PROJECTS:
@@ -77,7 +81,7 @@ def parse_xml():
                         output_file.write(str.encode(name + " errors: " + errors + 
                             " failures: " + failures + "\n"))
                         if CONSOLE_PRINT:
-                            print(str.encode(name + " errors: " + errors + " failures: " + failures))
+                            print(name + " errors: " + errors + " failures: " + failures)
             if int(errors) > 0:
                 for x in node.findall(".//error"):
                     if SEPARATE_FILE:
@@ -99,18 +103,20 @@ def usage():
     print("Usage of this function:")
     print("-c or --console if you'd like the summary of failures/errors printed to the console ",
         "(in addition to file)")
-    print("-d or --detailed if stack traces should be printed in a separate file")
+    print("-d or --date if you'd like the results for a specific build date. Format is YYYYMMDD")
     print("-h or --help for help")
     print("-o or --os to specify the platforms. Format is a comma separated list of GTK,WIN32,OSX,", 
         "or just all for all platforms")
     print("-p or --project to specify the test projects to check. Format is a", 
         "comma separated list of project names (i.e. org.eclipse.swt.tests) or default for a basic",
         "running of the UI test projects")
+    print("-s or --separate if stack traces should be printed in a separate file")
     return;
 
 def parse_args():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "cdhlo:p:s", ["console", "detailed", "help", "location", "os=", "project="])
+        opts, args = getopt.getopt(sys.argv[1:], "cd:hlo:p:s", ["console","date=", 
+            "help", "location", "os=", "project=", "separate"])
     except getopt.GetoptError as err:
         print("Option not recognized")
         usage()
@@ -119,7 +125,10 @@ def parse_args():
         if o in ("-c", "--console"):
             global CONSOLE_PRINT
             CONSOLE_PRINT = True
-        elif o in ("-d", "--detailed"):
+        elif o in ("-d", "--date"):
+            global CUSTOM_DATE
+            CUSTOM_DATE += a
+        elif o in ("-s", "--separate"):
             global SEPARATE_FILE
             SEPARATE_FILE = True
         elif o in ("-p", "--project"):
@@ -167,7 +176,10 @@ def parse_args():
 
 def cleanup():
     for file_name in FILES:
-        os.remove(file_name)
+        try:
+            os.remove(file_name)
+        except:
+            continue
     return;
 
 if __name__ == "__main__":
