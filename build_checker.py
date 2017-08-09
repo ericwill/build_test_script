@@ -21,6 +21,8 @@ DEFAULT_PROJECTS = ["org.eclipse.ant.tests.ui", "org.eclipse.e4.ui.tests.css.swt
 WIN = ["ep48I-unit-win32_win32.win32.x86_8.0"]
 MAC = ["ep48I-unit-mac64_macosx.cocoa.x86_64_8.0"]
 LINUX = ["ep48I-unit-cen64-gtk3_linux.gtk.x86_64_8.0", "ep48I-unit-cen64-gtk2_linux.gtk.x86_64_8.0"]
+GTK2 = ["ep48I-unit-cen64-gtk2_linux.gtk.x86_64_8.0"]
+GTK3 = ["ep48I-unit-cen64-gtk3_linux.gtk.x86_64_8.0"]
 PLATFORMS = []
 URL_PREFIX = "http://download.eclipse.org/eclipse/downloads/drops4/"
 TEST_DIR = "/testresults/xml/"
@@ -67,8 +69,12 @@ def download_files():
 
 def parse_xml():
     if SEPARATE_FILE:
-        sep_file = open(FILE_DIR + CURRENT_DATE + "_stacktraces", 'wb+')
-    output_file = open(FILE_DIR + CURRENT_DATE, 'wb+')
+        if os.path.isfile(FILE_DIR + CURRENT_DATE + "_stacktraces"):
+            os.remove(FILE_DIR + CURRENT_DATE + "_stacktraces")
+        sep_file = open(FILE_DIR + CURRENT_DATE + "_stacktraces", 'ab+')
+    if os.path.isfile(FILE_DIR + CURRENT_DATE):
+        os.remove(FILE_DIR + CURRENT_DATE)
+    output_file = open(FILE_DIR + CURRENT_DATE, 'ab+')
     for file_name in FILES:
         root = xml.etree.ElementTree.parse(file_name).getroot()
         for node in root:
@@ -77,11 +83,21 @@ def parse_xml():
             failures = attributes.get("failures")
             if int(errors) > 0 or int(failures) > 0:
                 for name in TEST_PROJECTS:
+                    os_name = ""
+                    if "gtk" in file_name:
+                        if "gtk2" in file_name:
+                            os_name = "GTK2"
+                        elif "gtk3" in file_name:
+                            os_name = "GTK3"
+                    elif "mac64" in file_name:
+                        os_name = "MAC"
+                    elif "win32" in file_name:
+                        os_name = "WIN32"
                     if name in file_name:
                         output_file.write(str.encode(name + " errors: " + errors + 
-                            " failures: " + failures + "\n"))
+                            " failures: " + failures + " " + os_name + "\n"))
                         if CONSOLE_PRINT:
-                            print(name + " errors: " + errors + " failures: " + failures)
+                            print(name + " errors: " + errors + " failures: " + failures + " " + os_name)
             if int(errors) > 0:
                 for x in node.findall(".//error"):
                     if SEPARATE_FILE:
@@ -105,8 +121,8 @@ def usage():
         "(in addition to file)")
     print("-d or --date if you'd like the results for a specific build date. Format is YYYYMMDD")
     print("-h or --help for help")
-    print("-o or --os to specify the platforms. Format is a comma separated list of GTK,WIN32,OSX,", 
-        "or just all for all platforms")
+    print("-o or --os to specify the platforms. Format is a comma separated list of [GTK2/GTK3,GTK],WIN32,OSX,", 
+        "or just all for all platforms. Note that GTK pulls in both GTK2 and GTK3 results.")
     print("-p or --project to specify the test projects to check. Format is a", 
         "comma separated list of project names (i.e. org.eclipse.swt.tests) or default for a basic",
         "running of the UI test projects")
@@ -152,8 +168,15 @@ def parse_args():
                     PLATFORMS.append(i)
             else:
                 if "GTK" in a:
-                    for i in LINUX:
-                        PLATFORMS.append(i)
+                    if "GTK2" in a:
+                        for i in GTK2:
+                            PLATFORMS.append(i)
+                    elif "GTK3" in a:
+                        for i in GTK3:
+                            PLATFORMS.append(i)
+                    else:
+                        for i in LINUX:
+                            PLATFORMS.append(i)
                 if "OSX" in a:
                     for i in MAC:
                         PLATFORMS.append(i)
