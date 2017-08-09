@@ -92,8 +92,10 @@ def parse_xml():
             attributes = node.attrib
             errors = attributes.get("errors")
             failures = attributes.get("failures")
+            project_name_fail_or_error = ""
             if int(errors) > 0 or int(failures) > 0:
                 for name in TEST_PROJECTS:
+                    project_name_fail_or_error = name
                     os_name = ""
                     if "gtk" in file_name:
                         if "gtk2" in file_name:
@@ -112,13 +114,13 @@ def parse_xml():
             if int(errors) > 0:
                 for x in node.findall(".//error"):
                     if SEPARATE_FILE:
-                        sep_file.write(str.encode(x.text + "\n"))
+                        sep_file.write(str.encode(project_name_fail_or_error + "\n" + x.text + "\n"))
                     else:
                         output_file.write(str.encode(x.text + "\n"))
             if int(failures) > 0:
                 for x in node.findall(".//failure"):
                     if SEPARATE_FILE:
-                        sep_file.write(str.encode(x.text + "\n"))
+                        sep_file.write(str.encode(project_name_fail_or_error + "\n" + x.text + "\n"))
                     else:
                         output_file.write(str.encode(x.text + "\n"))
     output_file.close()
