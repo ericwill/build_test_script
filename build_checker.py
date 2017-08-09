@@ -27,6 +27,8 @@ PLATFORMS = []
 URL_PREFIX = "http://download.eclipse.org/eclipse/downloads/drops4/"
 TEST_DIR = "/testresults/xml/"
 FILE_DIR = ""
+CUSTOM_FILE = False
+CUSTOM_FILE_NAME = ""
 FILES = []
 SEPARATE_FILE = False
 CONSOLE_PRINT = False
@@ -68,13 +70,22 @@ def download_files():
     return;
 
 def parse_xml():
-    if SEPARATE_FILE:
-        if os.path.isfile(FILE_DIR + CURRENT_DATE + "_stacktraces"):
-            os.remove(FILE_DIR + CURRENT_DATE + "_stacktraces")
-        sep_file = open(FILE_DIR + CURRENT_DATE + "_stacktraces", 'ab+')
-    if os.path.isfile(FILE_DIR + CURRENT_DATE):
-        os.remove(FILE_DIR + CURRENT_DATE)
-    output_file = open(FILE_DIR + CURRENT_DATE, 'ab+')
+    if CUSTOM_FILE:
+        if SEPARATE_FILE:
+            if os.path.isfile(FILE_DIR + CUSTOM_FILE_NAME + "_stacktraces"):
+                os.remove(FILE_DIR + CUSTOM_FILE_NAME + "_stacktraces")
+            sep_file = open(FILE_DIR + CUSTOM_FILE_NAME + "_stacktraces", 'ab+')
+        if os.path.isfile(FILE_DIR + CUSTOM_FILE_NAME):
+            os.remove(FILE_DIR + CUSTOM_FILE_NAME)
+        output_file = open(FILE_DIR + CUSTOM_FILE_NAME, 'ab+')
+    else:
+        if SEPARATE_FILE:
+            if os.path.isfile(FILE_DIR + CURRENT_DATE + "_stacktraces"):
+                os.remove(FILE_DIR + CURRENT_DATE + "_stacktraces")
+            sep_file = open(FILE_DIR + CURRENT_DATE + "_stacktraces", 'ab+')
+        if os.path.isfile(FILE_DIR + CURRENT_DATE):
+            os.remove(FILE_DIR + CURRENT_DATE)
+        output_file = open(FILE_DIR + CURRENT_DATE, 'ab+')
     for file_name in FILES:
         root = xml.etree.ElementTree.parse(file_name).getroot()
         for node in root:
@@ -121,6 +132,7 @@ def usage():
         "(in addition to file)")
     print("-d or --date if you'd like the results for a specific build date. Format is YYYYMMDD")
     print("-h or --help for help")
+    print("-n or --name to specify a custom file name to save test results")
     print("-o or --os to specify the platforms. Format is a comma separated list of [GTK2/GTK3,GTK],WIN32,OSX,", 
         "or just all for all platforms. Note that GTK pulls in both GTK2 and GTK3 results.")
     print("-p or --project to specify the test projects to check. Format is a", 
@@ -131,8 +143,8 @@ def usage():
 
 def parse_args():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "cd:hlo:p:s", ["console","date=", 
-            "help", "location", "os=", "project=", "separate"])
+        opts, args = getopt.getopt(sys.argv[1:], "cd:hln:o:p:s", ["console","date=", 
+            "help", "location", "name=", "os=", "project=", "separate"])
     except getopt.GetoptError as err:
         print("Option not recognized")
         usage()
@@ -158,6 +170,11 @@ def parse_args():
         elif o in ("-h", "--help"):
             usage()
             sys.exit(0)
+        elif o in ("-n", "--name"):
+            global CUSTOM_FILE
+            global CUSTOM_FILE_NAME
+            CUSTOM_FILE = True
+            CUSTOM_FILE_NAME += a
         elif o in ("-o", "--os"):
             if "all" in a:
                 for i in LINUX:
