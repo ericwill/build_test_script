@@ -32,6 +32,7 @@ CUSTOM_FILE_NAME = ""
 FILES = []
 SEPARATE_FILE = False
 CONSOLE_PRINT = False
+TEST_CASES = False
 
 def build_string():
     return "I" + CURRENT_DATE + "-2000";
@@ -47,6 +48,8 @@ def date_string():
             str_month = str(month)
         if (day < 10):
             str_day = "0" + str(day)
+        else:
+            str_day = str(day)
 
         return str(date.year) + str_month + str_day;
     else:
@@ -116,6 +119,7 @@ def parse_xml():
                     if SEPARATE_FILE:
                         sep_file.write(str.encode(project_name_fail_or_error + "\n" + x.text + "\n"))
                     else:
+                        meh = x.text.split(":")
                         output_file.write(str.encode(x.text + "\n"))
             if int(failures) > 0:
                 for x in node.findall(".//failure"):
@@ -145,7 +149,7 @@ def usage():
 
 def parse_args():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "cd:hln:o:p:s", ["console","date=", 
+        opts, args = getopt.getopt(sys.argv[1:], "cd:hln:o:p:st", ["console","date=", 
             "help", "location", "name=", "os=", "project=", "separate"])
     except getopt.GetoptError as err:
         print("Option not recognized")
@@ -202,6 +206,9 @@ def parse_args():
                 if "WIN32" in a:
                     for i in WIN:
                         PLATFORMS.append(i)
+        elif o in ("-t", "--testcases"):
+            global TEST_CASES
+            TEST_CASES = True
         else:
             print(o + "is not a valid option")
             usage()
